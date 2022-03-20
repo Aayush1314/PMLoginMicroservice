@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: loginmicroservice
-        image: PMCNTR.azurecr.io/logindocker:latest
+        image: pmctr.azurecr.io/logindocker:latest
         ports:
         - containerPort: 8080
       imagePullSecrets:
