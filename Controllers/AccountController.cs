@@ -15,12 +15,14 @@ namespace LoginMicroservice.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-
-        
+        private readonly ProtfolioDbContext _db;
         private readonly ILoginService _loginService;
+        private readonly ITokenService _tokenService;
 
-        public AccountController(ILoginService loginService)
+        public AccountController(ITokenService tokenService,ProtfolioDbContext db, ILoginService loginService)
         {
+            _tokenService = tokenService;
+            _db = db;
             _loginService = loginService;
         }
 
@@ -29,24 +31,25 @@ namespace LoginMicroservice.Controllers
         /// </summary>
         /// <param name="registerDto"></param>
         /// <returns>UserDto</returns>
-        //[HttpPost("Register")]
-        //public async Task<ActionResult<UserDto>> Register (RegisterDto registerDto){
-        //    using var hmac = new HMACSHA512();
-        //    var user = new User
-        //    {
-        //        UserName = registerDto.UserName,
-        //        PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-        //        PasswordSalt = hmac.Key
-        //    };
-        //    _db.Users.Add(user);
-        //    await _db.SaveChangesAsync();
+        [HttpPost("Register")]
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        {
+            using var hmac = new HMACSHA512();
+            var user = new User
+            {
+                UserName = registerDto.UserName,
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
+                PasswordSalt = hmac.Key
+            };
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
 
-        //    return new UserDto
-        //    {
-        //        Token = tokenService.CreateToken(user),
-        //        UserName = registerDto.UserName,
-        //    };
-        //}
+            return new UserDto
+            {
+                Token = _tokenService.CreateToken(user),
+                UserName = registerDto.UserName,
+            };
+        }
 
         /// <summary>
         /// Login User
