@@ -21,6 +21,6 @@ namespace LoginMicroservice.Model
         public MutualFundPriceDetails MutualFundPriceDetails { get; set; }
         
         [Required]
-        public int MutualFundUnits{ get; set; }
+        public int Count{ get; set; }
     }
 }

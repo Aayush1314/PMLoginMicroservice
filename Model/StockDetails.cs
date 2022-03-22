@@ -21,6 +21,6 @@ namespace LoginMicroservice.Model
         public StockPriceDetails StockPriceDetails { get; set;}
         
         [Required]
-        public int StockCount { get; set; }
+        public int Count { get; set; }
     }
 }
