@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System;
+using Microsoft.Extensions.Configuration;
 
 namespace LoginMicroservice.Repository
 {
@@ -16,22 +18,24 @@ namespace LoginMicroservice.Repository
     {
         private readonly ITokenService _tokenService;
         private readonly ProtfolioDbContext _db;
-        public AccountRepo(ITokenService tokenService,ProtfolioDbContext db)
+        private IConfiguration _config;
+        public AccountRepo(IConfiguration config,ITokenService tokenService,ProtfolioDbContext db)
         {
             _tokenService = tokenService;
             _db = db;
-
+            _config = config;
         }
+
         public UserDto CheckCredentials(LoginDto loginDto)
         {
-            var user = _db.Users.SingleOrDefault(u => u.UserName == loginDto.UserName);
+            var user = _db.Users.FirstOrDefault(u => u.UserName == loginDto.UserName);
             if (user == null)
             {
                 return null;
             }
             
-            using var hmac = new HMACSHA512(user.PasswordSalt);
-
+            try { 
+            using var hmac = new HMACSHA512(user.PasswordSalt);                
             var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
             for (int i = 0; i < computedHash.Length; i++)
             {
@@ -44,6 +48,12 @@ namespace LoginMicroservice.Repository
                 UserName = loginDto.UserName,
                 Token = _tokenService.CreateToken(user)
             };
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+                
+            }
             
         }
     }
